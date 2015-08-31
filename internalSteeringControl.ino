@@ -3,9 +3,10 @@ const float adc12BitToVolts = 3.3 / 4096.0;
 const float voltsTo12Bit = 4096.0 / 3.3;
 
 #define DAC_PIN A14
-#define DIRECTION_SELECT_PIN 14
-#define STEERING_POSITION_PIN A1
-#define DESIRED_POSITION_PIN A2
+#define DIRECTION_RIGHT_PIN 14
+#define DIRECTION_LEFT_PIN 15
+#define STEERING_POSITION_PIN A2
+#define DESIRED_POSITION_PIN A3
 
 #define LED_PIN 13
 
@@ -63,13 +64,14 @@ void steeringControl()
 
   steeringDirection = steeringEffortVolts > 0;
 
-  dacVolts = abs(steeringEffortVolts);
+  dacVolts = abs(steeringEffortVolts) + 0.75;
   dacVal = dacVolts * voltsTo12Bit;
 }
 
 void writeValues()
 {
-  digitalWrite(DIRECTION_SELECT_PIN, steeringDirection);
+  digitalWrite(DIRECTION_RIGHT_PIN, steeringDirection);
+  digitalWrite(DIRECTION_LEFT_PIN, !steeringDirection);
   analogWrite(DAC_PIN, dacVal);
 }
 
@@ -84,8 +86,11 @@ void setup() {
   pinMode(DAC_PIN, OUTPUT);
   analogWrite(DAC_PIN, 0);
 
-  pinMode(DIRECTION_SELECT_PIN, OUTPUT);
-  digitalWrite(DIRECTION_SELECT_PIN, HIGH);
+  pinMode(DIRECTION_RIGHT_PIN, OUTPUT);
+  digitalWrite(DIRECTION_RIGHT_PIN, HIGH);
+
+  pinMode(DIRECTION_LEFT_PIN, OUTPUT);
+  digitalWrite(DIRECTION_LEFT_PIN, LOW);
 
   integralError = 0;
   delay(3000);
